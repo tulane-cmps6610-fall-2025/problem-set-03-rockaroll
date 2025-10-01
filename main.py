@@ -8,16 +8,28 @@ import math
 ### PART 1: SEARCHING UNSORTED LISTS
 
 # search an unordered list L for a key x using iterate
+
 def isearch(L, x):
-    ###TODO
-    ###
+    f=lambda x,y: x+1 if x==y else x 
+    if(len(L)==1):
+        if(x==L[0]):
+            return True 
+        else:
+            return False
+    else:
+        c1=iterate(f,x,L)
+        if(c1==x):
+            return False
+        elif(c1>x):
+            return True
+   
 
 def test_isearch():
     assert isearch([1, 3, 5, 4, 2, 9, 7], 2) == (2 in [1, 3, 5, 4, 2, 9, 7])
     assert isearch([1, 3, 5, 2, 9, 7], 7) == (7 in [1, 3, 5, 2, 9, 7])
     assert isearch([1, 3, 5, 2, 9, 7], 99) == (99 in [1, 3, 5, 2, 9, 7])
     assert isearch([], 2) == (2 in [1, 3, 5])
-
+    assert isearch([2],2) == (2 in [2])
 
 def iterate(f, x, a):
     # done. do not change me.
@@ -28,14 +40,28 @@ def iterate(f, x, a):
 
 # search an unordered list L for a key x using reduce
 def rsearch(L, x):
-    ###TODO
-    ###
+    f=lambda a,b: x if a==x or b==x else 0
+    if(len(L)==0):
+        return False
+    if(len(L)==1):
+        if(x==L[0]):
+            return True 
+        else:
+            return False 
+    else:
+        c1=reduce(f,x,L)
+        if(c1==x):
+            return True 
+        else:
+            return False
+
 
 def test_rsearch():
     assert rsearch([1, 3, 5, 4, 2, 9, 7], 2) == (2 in [1, 3, 5, 4, 2, 9, 7])
     assert rsearch([1, 3, 5, 2, 9, 7], 7) == (7 in [1, 3, 5, 2, 9, 7])
     assert rsearch([1, 3, 5, 2, 9, 7], 99) == (99 in [1, 3, 5, 2, 9, 7])
     assert rsearch([], 2) == (2 in [1, 3, 5])
+
 
 def reduce(f, id_, a):
     print(a)
@@ -49,7 +75,7 @@ def reduce(f, id_, a):
         res = f(reduce(f, id_, a[:len(a)//2]),
                  reduce(f, id_, a[len(a)//2:]))
         return res
-
+    
 def ureduce(f, id_, a):
     if len(a) == 0:
         return id_
@@ -59,8 +85,6 @@ def ureduce(f, id_, a):
         # can call these in parallel
         return f(reduce(f, id_, a[:len(a)//3]),
                  reduce(f, id_, a[len(a)//3:]))
-
-
 
 
 ### PART 3: PARENTHESES MATCHING
@@ -82,9 +106,8 @@ def parens_match_iterative(mylist):
     >>>parens_match_iterative(['('])
     False
     """
-    ### TODO
     return iterate(parens_update, 0, mylist) == 0
-    ###
+  
 
 
 def parens_update(current_output, next_input):
@@ -99,8 +122,15 @@ def parens_update(current_output, next_input):
     Returns:
       the updated value of `current_output`
     """
-    ###TODO
-    ###
+    if(next_input=='('):
+        current_output+=1
+    elif(next_input==')'):
+        current_output-=1
+    else:
+        current_output=current_output
+    if(current_output<0):
+        current_output-=1
+    return current_output
 
 
 def test_parens_match_iterative():
@@ -112,9 +142,14 @@ def test_parens_match_iterative():
     assert parens_match_iterative(['(', '(', ')']) == False
     assert parens_match_iterative(['(', 'a', ')', ')', '(']) == False
     assert parens_match_iterative([]) == True
+    
 
 
 #### Scan solution
+
+
+
+
 
 def parens_match_scan(mylist):
     """
@@ -133,8 +168,21 @@ def parens_match_scan(mylist):
     False
     
     """
-    ###TODO
-    ###
+    if len(mylist)==0:
+       return True 
+    else:
+       paren_map_list=[paren_map(i) for i in mylist]
+       scanned_list=[]
+       f=lambda x,y: x+y
+       scanned_list,sum=scan(f,0,paren_map_list)
+       s2=min(scanned_list)
+       output=min_f(s2,sum)
+       if(output==0):
+          return True
+       else:
+          return False
+    
+    
 
 def scan(f, id_, a):
     """
@@ -187,6 +235,7 @@ def test_parens_match_scan():
     assert parens_match_scan(['(', '(', ')']) == False
     assert parens_match_scan(['(', 'a', ')', ')', '(']) == False
     assert parens_match_scan([]) == True
+    
 
 #### Divide and conquer solution
 
@@ -213,14 +262,24 @@ def parens_match_dc_helper(mylist):
     """
     ###TODO
     # base cases
-    
-    # recursive case
-    # - first solve subproblems
-    
-    # - then compute the solution (R,L) using these solutions, in constant time.
-    
-    ###
-    
+    if(len(mylist)==0):
+        return (0,0)
+    if(len(mylist)==1):
+        if(mylist[0]=='('):
+            return (0,1)
+        elif(mylist[0]==')'):
+            return (1,0)
+        else:
+            return (0,0)
+    else:
+        mid_pt=len(mylist)//2
+        i,j=parens_match_dc_helper(mylist[:mid_pt])
+        k,l=parens_match_dc_helper(mylist[mid_pt:])
+        matches=min(j,k)
+        R=i+(k-matches)
+        L=j+(l-matches)
+        return (R,L)
+
 
 def test_parens_match_dc():
     assert parens_match_dc(['(', ')']) == True
@@ -231,3 +290,12 @@ def test_parens_match_dc():
     assert parens_match_dc(['(', '(', ')']) == False
     assert parens_match_dc(['(', 'a', ')', ')', '(']) == False
     assert parens_match_dc([]) == True 
+
+
+if __name__=="__main__":
+    test_isearch()
+    test_rsearch()
+    test_parens_match_iterative()
+    test_parens_match_scan()
+    test_parens_match_dc()
+    
